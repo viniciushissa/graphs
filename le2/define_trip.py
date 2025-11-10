@@ -102,13 +102,6 @@ class TripService:
         y = [G.nodes[n]['y'] for n in nodes]
         ax.scatter(x, y, s=120, c="red", zorder=5)
 
-        for path in segment_paths:
-            ox.plot_graph_route(G, path, ax=ax, node_size=0, route_linewidth=3, show=False, close=False)
-
-        x = [G.nodes[n]['x'] for n in nodes]
-        y = [G.nodes[n]['y'] for n in nodes]
-        ax.scatter(x, y, s=120, c="red", zorder=5)
-
         for stop_number, node_index in enumerate(route_order):
             node = nodes[node_index]
             x = G.nodes[node]['x']
