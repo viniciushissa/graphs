@@ -1,6 +1,7 @@
 from geopy.geocoders import Nominatim
 import osmnx as ox
 import heapq
+import matplotlib.pyplot as plt
 
 def pathing_route_dijkstra(G, start, target, weight="length"):
     dist = {node: float("inf") for node in G.nodes()}
@@ -56,7 +57,7 @@ class TripService:
         ys = [loc.latitude for loc in locations]
         nodes = ox.distance.nearest_nodes(G, xs, ys)
 
-        full_path = []
+        segment_paths = []
         total_distance = 0
         route_order = [0]
         remaining = list(range(1, len(nodes)))
@@ -76,23 +77,45 @@ class TripService:
             remaining.remove(chosen_index)
             total_distance += chosen_distance
 
-            if full_path:
-                full_path.extend(chosen_path[1:])
-            else:
-                full_path.extend(chosen_path)
+            segment_paths.append(chosen_path)
 
         # trocar para endereço do carrier
         chosen_distance, return_path = pathing_route_dijkstra(G, nodes[route_order[-1]], nodes[0])
-        full_path.extend(return_path[1:])
+        segment_paths.append(return_path)
         route_order.append(0)
         total_distance += chosen_distance
 
         print("\nRoute stop order:")
-        for idx in route_order:
-            print(addresses[idx])
+        for i, idx in enumerate(route_order):
+            if i == 0:
+                print(f"Departure: {addresses[idx]}")
+            else: 
+                print(f"{i}° stop: {addresses[idx]}")
         print(f"Distance traveled on the trip: {round(total_distance/1000, 1)} km")
 
-        fig, ax = ox.plot_graph_route(G, full_path, node_size=0, route_linewidth=3)
+        fig, ax = ox.plot_graph(G, node_size=0, show=False, close=False)
+
+        for path in segment_paths:
+            ox.plot_graph_route(G, path, ax=ax, node_size=0, route_linewidth=3, show=False, close=False)
+
+        x = [G.nodes[n]['x'] for n in nodes]
+        y = [G.nodes[n]['y'] for n in nodes]
+        ax.scatter(x, y, s=120, c="red", zorder=5)
+
+        for path in segment_paths:
+            ox.plot_graph_route(G, path, ax=ax, node_size=0, route_linewidth=3, show=False, close=False)
+
+        x = [G.nodes[n]['x'] for n in nodes]
+        y = [G.nodes[n]['y'] for n in nodes]
+        ax.scatter(x, y, s=120, c="red", zorder=5)
+
+        for stop_number, node_index in enumerate(route_order):
+            node = nodes[node_index]
+            x = G.nodes[node]['x']
+            y = G.nodes[node]['y']
+            ax.text(x, y, str(stop_number), fontsize=11, color="yellow", weight="bold", zorder=10)
+
+        plt.show()
 
         return route_order
 
