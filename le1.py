@@ -100,10 +100,10 @@ def iniciar():
 
             print(f"Prim: {t1 - t0:.5f}s | Kruskal: {t2 - t1:.5f}s")
 
-            # if n in [10, 50, 100]:
-            #     G, edges = gerar_grafo(n, tipo)
-            #     mst_edges = kruskal(n, edges)
-            #     desenhar(n, edges, mst_edges, f"Grafo {tipo}: {n} vértices")
+            if n in [10, 50, 100]:
+                G, edges = gerar_grafo(n, tipo)
+                mst_edges = kruskal(n, edges)
+                desenhar(n, edges, mst_edges, f"Grafo {tipo}: {n} vértices")
 
 def desenhar(n, edges, mst_edges, titulo="MST"):
     G = nx.Graph()
