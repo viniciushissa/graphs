@@ -9,7 +9,7 @@ def pathing_route_dijkstra(G, start, target, weight="length"):
     prev = {}
     pq = [(0, start)]
 
-    while pq:
+    while pq:   
         current_dist, u = heapq.heappop(pq)
 
         if u == target:
@@ -40,7 +40,7 @@ def pathing_route_dijkstra(G, start, target, weight="length"):
 
 class TripService:
     @staticmethod
-    def define_trip(depot_address, orders_address, city_context="Campos dos Goytacazes, Rio de Janeiro, Brasil"):
+    def define_trip(depot_address, orders_address, city_context="Rio de Janeiro, RJ, Brasil"):
         addresses = [depot_address] + orders_address
 
         print(f"1. Geocodificando endereços em {city_context}...")
@@ -52,11 +52,11 @@ class TripService:
             loc = geolocator.geocode(search_query)
             if loc:
                 locations.append(loc)
-                print(f"   [OK] Encontrado: {address.split(',')[0]}")
+                print(f"   [OK] Encontrado: {address.split(',')[0]},{address.split(',')[1]}")
             else:
                 raise ValueError(f"Endereço não encontrado pelo Nominatim: {address}")
 
-        print("2. Baixando o grafo da cidade (isso pode demorar um pouco na primeira vez)...")
+        print("2. Baixando o mapa da cidade...")
         G = ox.graph_from_place(city_context, network_type="drive")
 
         xs = [loc.longitude for loc in locations]
@@ -115,7 +115,7 @@ class TripService:
         y_coords = [G.nodes[n]['y'] for n in nodes]
         ax.scatter(x_coords, y_coords, s=100, c="red", zorder=5, edgecolors='white')
 
-        for stop_number, node_index in enumerate(route_order[:-1]): # Ignora o último que é repetição do 0
+        for stop_number, node_index in enumerate(route_order[:-1]):
             node = nodes[node_index]
             x = G.nodes[node]['x']
             y = G.nodes[node]['y']
@@ -128,13 +128,14 @@ class TripService:
         return route_order
     
 
-depot = "Avenida Alberto Lamego, 2000, Parque California, Campos dos Goytacazes, RJ, Brasil"
+depot = "Estrada do Rio Grande, 3000, Taquara, Rio de Janeiro, RJ, 22723-220, Brasil"
 
-orders = [
-    "Avenida Pelinca, 116, Parque Tamandaré, Campos dos Goytacazes, RJ, Brasil",
-    "Rua Tenente-Coronel Cardoso, 517, Centro, Campos dos Goytacazes, RJ, Brasil",
-    "Avenida 28 de Março, 485, Parque Tamandaré, Campos dos Goytacazes, RJ, Brasil",
-]
+orders = ["Rua Barata Ribeiro, 370, Copacabana, Rio de Janeiro, RJ, 22040-002, Brasil",
+                  "Avenida Atlântica, 1702, Copacabana, Rio de Janeiro, RJ, 22021-000, Brasil",
+                  "Rua do Catete, 153, Catete, Rio de Janeiro, RJ, 22220-000, Brasil",
+                  "Rua Haddock Lobo, 195, Tijuca, Rio de Janeiro, RJ, 20260-142, Brasil",
+                  "Avenida Presidente Vargas, 2000, Centro, Rio de Janeiro, RJ, 20071-003, Brasil",
+                  "Rua Visconde de Pirajá, 550, Ipanema, Rio de Janeiro, RJ, 22410-002, Brasil"]
 
 try:
     TripService.define_trip(depot, orders)
